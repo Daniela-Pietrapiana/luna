@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Luna</title>
+<meta name="theme-color" content="#fbf7f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17131a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Luna">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+:root{
+  --accent:#e0608f; --fertile:#2fa8a8;
+  --bg:#fbf7f9; --card:#ffffff; --text:#2b2230; --muted:#7b6f80; --line:#ece4ea;
+  --soft:color-mix(in srgb,var(--accent) 13%,transparent);
+  --radius:18px;
+  font-family: ui-rounded, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#17131a; --card:#221c26; --text:#f3eef5; --muted:#a99fae; --line:#382e3d; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);line-height:1.45;overscroll-behavior-y:none}
+button,input,textarea,select{font:inherit;color:inherit}
+button,.btn,.chip,.cell,.flow{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.app{max-width:880px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 60px calc(20px + env(safe-area-inset-left))}
+nav button .ic{display:none}
+header.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.brand{font-size:1.5rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.brand i{font-style:normal;color:var(--accent)}
+nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);padding:4px;border-radius:999px;margin-left:auto}
+nav button{border:0;background:transparent;padding:8px 16px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:600}
+nav button.on{background:var(--accent);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h2{margin:0 0 12px;font-size:1.05rem}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:700px){
+  .grid2{grid-template-columns:1fr;gap:0}
+  .app{padding-top:calc(12px + env(safe-area-inset-top));padding-left:calc(14px + env(safe-area-inset-left));padding-right:calc(14px + env(safe-area-inset-right));padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+  header.top{margin-bottom:10px}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;border-radius:0;border:0;border-top:1px solid var(--line);
+      padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around;
+      background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+  nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;font-size:.68rem;border-radius:12px}
+  nav button .ic{display:block;font-size:1.35rem;line-height:1.2;filter:grayscale(1);opacity:.7}
+  nav button.on{background:transparent;color:var(--accent)}
+  nav button.on .ic{filter:none;opacity:1}
+  .card{padding:16px}
+  .tiles{gap:8px} .tile{padding:10px 6px} .tile b{font-size:1.35rem}
+  .item-row{grid-template-columns:44px 1fr 34px 34px 34px}
+}
+/* iPhone: niente zoom automatico sui campi */
+input,textarea,select{font-size:16px !important}
+.btn{border:1px solid var(--line);background:var(--card);padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:#d03a3a;border-color:color-mix(in srgb,#d03a3a 40%,var(--line))}
+.btn.block{width:100%}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+
+/* Oggi */
+.hello{font-size:1.6rem;font-weight:800;margin:0}
+.ring{position:relative;width:250px;height:250px;margin:6px auto 4px}
+.ring svg{width:100%;height:100%}
+.ring-bg{fill:none;stroke:var(--soft);stroke-width:18}
+.ring-fg{fill:none;stroke:var(--accent);stroke-width:18;stroke-linecap:round;transition:stroke-dashoffset .6s}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}
+.ring-text .v{font-size:2.3rem;font-weight:800;line-height:1.1}
+.phase{background:var(--soft);border-radius:14px;padding:14px 16px}
+.phase b{display:block;margin-bottom:2px}
+.banner{display:flex;gap:10px;align-items:center;background:color-mix(in srgb,var(--accent) 18%,var(--card));border-radius:14px;padding:12px 16px;margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid transparent;background:color-mix(in srgb,var(--text) 6%,transparent);padding:7px 13px;border-radius:999px;cursor:pointer}
+.chip.on{background:var(--soft);border-color:var(--accent)}
+span.chip{cursor:default}
+
+/* Calendario */
+.cal-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cal-head h2{margin:0;flex:1;text-align:center;font-size:1.2rem}
+.iconbtn{border:1px solid var(--line);background:var(--card);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1.1rem}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:540px;margin:0 auto}
+.wd{text-align:center;font-size:.8rem;color:var(--muted);font-weight:700;padding-bottom:4px}
+.cell{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative;border:0;background:transparent;cursor:pointer;font-size:1rem}
+.cell:hover:not(:disabled){background:color-mix(in srgb,var(--text) 7%,transparent)}
+.cell.fert{background:color-mix(in srgb,var(--fertile) 18%,transparent)}
+.cell.ovu{background:color-mix(in srgb,var(--fertile) 32%,transparent);box-shadow:inset 0 0 0 2px var(--fertile)}
+.cell.pred{box-shadow:inset 0 0 0 2px var(--accent);background:repeating-linear-gradient(45deg,var(--soft) 0 4px,transparent 4px 8px)}
+.cell.spot{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.cell.period{background:var(--accent);color:#fff}
+.cell.today{font-weight:800;outline:2px solid var(--text);outline-offset:2px}
+.cell.has::after{content:"";position:absolute;bottom:14%;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
+.cell:disabled{cursor:default;color:var(--muted)}
+.cell.period:disabled{color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:.85rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:50%;display:inline-block}
+
+/* Statistiche */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{background:var(--soft);border-radius:14px;padding:14px;text-align:center}
+.tile b{display:block;font-size:1.6rem;color:var(--accent)}
+table{width:100%;border-collapse:collapse}
+td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.8rem;color:var(--muted);font-weight:700}
+.bar-label{font-size:11px;fill:var(--muted)}
+.bar-val{font-size:11px;font-weight:700;fill:var(--text)}
+
+/* Impostazioni */
+label.field{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:.92rem}
+input[type=text],input[type=number],input[type=time],input[type=password],textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 11px;width:100%}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+label.check{display:flex;gap:10px;align-items:center;cursor:pointer}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatch{width:40px;height:40px;border-radius:50%;border:3px solid transparent;cursor:pointer;color:#fff;font-weight:800}
+.swatch.on{border-color:var(--text)}
+.items-list{display:flex;flex-direction:column;gap:6px}
+.item-row{display:grid;grid-template-columns:52px 1fr auto auto auto;gap:6px;align-items:center}
+.item-row input.emo{text-align:center}
+.mini{border:1px solid var(--line);background:var(--card);border-radius:8px;width:34px;height:34px;cursor:pointer}
+.mini:disabled{opacity:.35;cursor:default}
+
+/* Dialog */
+dialog{border:0;border-radius:22px;padding:0;background:var(--card);color:var(--text);width:min(560px,94vw);max-height:88dvh;overflow:auto;-webkit-overflow-scrolling:touch;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+@media (max-width:700px){
+  dialog{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:22px 22px 0 0;max-height:92dvh}
+  .day{padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+  .day footer .btn{flex:1}
+  .day footer .sp{display:none}
+}
+.install{border:2px dashed var(--accent)}
+.install ol{margin:8px 0 0;padding-left:20px}
+dialog::backdrop{background:rgba(20,10,20,.45)}
+.day{padding:20px 22px}
+.day header{display:flex;align-items:center;margin-bottom:6px}
+.day header h2{margin:0;flex:1;font-size:1.2rem;text-transform:capitalize}
+.day h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:16px 0 8px}
+.flows{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.flow{border:1.5px solid transparent;background:color-mix(in srgb,var(--text) 6%,transparent);border-radius:12px;padding:8px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.flow.on{background:var(--soft);border-color:var(--accent)}
+.flow small{font-size:.72rem}
+.day footer{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+
+/* Blocco */
+#lock{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:50}
+#lock.show{display:flex}
+#lock .box{text-align:center;width:min(320px,90vw)}
+#lock .moon{font-size:3.4rem}
+.err{color:#d03a3a;min-height:1.4em}
+</style>
+</head>
+<body>
+<div id="lock"><form class="box stack" id="lock-form">
+  <div class="moon">🌙</div>
+  <h2 style="margin:0">Diario protetto</h2>
+  <input type="password" id="lock-pin" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN">
+  <button class="btn primary block">Sblocca</button>
+  <div class="err" id="lock-err"></div>
+</form></div>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">🌙 <span>Lu<i>na</i></span></div>
+    <nav id="nav">
+      <button data-tab="oggi"><span class="ic">🌸</span>Oggi</button>
+      <button data-tab="calendario"><span class="ic">📅</span>Calendario</button>
+      <button data-tab="statistiche"><span class="ic">📊</span>Statistiche</button>
+      <button data-tab="impostazioni"><span class="ic">⚙️</span>Impostazioni</button>
+    </nav>
+  </header>
+  <main id="view"></main>
+</div>
+<dialog id="dlg"></dialog>
+
+<script>
+"use strict";
+/* ---------- Dati ---------- */
+const KEY = "luna-data-v1";
+const THEMES = {
+  rosa:{name:"Rosa",color:"#e0608f",fertile:"#2fa8a8"},
+  lavanda:{name:"Lavanda",color:"#9b7fd6",fertile:"#2fa8a8"},
+  corallo:{name:"Corallo",color:"#ef6f62",fertile:"#2fa8a8"},
+  menta:{name:"Menta",color:"#36a68c",fertile:"#9b7fd6"},
+  cielo:{name:"Cielo",color:"#4b8fdc",fertile:"#e0a03a"},
+  pesca:{name:"Pesca",color:"#ee8d4f",fertile:"#2fa8a8"}
+};
+const FLOWS = [
+  {sym:"—",label:"Nessuno"},{sym:"•",label:"Spotting"},
+  {sym:"💧",label:"Leggero"},{sym:"💧💧",label:"Medio"},{sym:"💧💧💧",label:"Abbondante"}
+];
+const KINDS = [{id:"mood",title:"Umore"},{id:"symptom",title:"Sintomi"}];
+const DEFAULT_ITEMS = [
+  ["😊","Felice","mood"],["😌","Tranquilla","mood"],["⚡","Energica","mood"],["😢","Triste","mood"],
+  ["😠","Irritabile","mood"],["😰","Ansiosa","mood"],
+  ["😣","Crampi","symptom"],["🤕","Mal di testa","symptom"],["🎈","Gonfiore","symptom"],["🍫","Voglie","symptom"],
+  ["🌋","Brufoli","symptom"],["😴","Stanchezza","symptom"],["🤢","Nausea","symptom"],["💢","Seno dolorante","symptom"],
+  ["🌀","Mal di schiena","symptom"]
+];
+const DEFAULT_SETTINGS = {
+  name:"", theme:"rosa", cycleLength:28, periodLength:5, showFertile:true,
+  periodReminder:true, reminderDays:2, discreet:true,
+  medEnabled:false, medName:"Integratore", medTime:"21:00",
+  pinHash:"", lastNotified:"", lastMedNotified:""
+};
+const PHASES = {
+  menstrual:{t:"Mestruazioni",i:"🩸",d:"Estrogeni e progesterone sono bassi. È normale sentirsi più stanche: riposo, acqua e un po' di calore sulla pancia possono aiutare."},
+  follicular:{t:"Fase follicolare",i:"🌱",d:"Gli estrogeni risalgono: spesso arrivano più energia, concentrazione e buonumore."},
+  fertile:{t:"Finestra fertile",i:"✨",d:"Gli estrogeni sono al massimo e il corpo si prepara all'ovulazione."},
+  ovulation:{t:"Ovulazione (stimata)",i:"☀️",d:"Il giorno stimato in cui l'ovaio rilascia un ovulo. Alcune ragazze sentono una leggera fitta su un lato."},
+  luteal:{t:"Fase luteale",i:"🌙",d:"Sale il progesterone. Nei giorni prima del ciclo possono comparire gonfiore, voglie, brufoli o sbalzi d'umore."}
+};
+
+const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36);
+function fresh(){
+  return {logs:{}, items:DEFAULT_ITEMS.map(([emoji,name,kind])=>({key:uid(),emoji,name,kind})), settings:{...DEFAULT_SETTINGS}};
+}
+function normalize(s){
+  if(!s || typeof s!=="object" || typeof s.logs!=="object") throw new Error("formato non valido");
+  s.items = Array.isArray(s.items) ? s.items : [];
+  s.settings = {...DEFAULT_SETTINGS, ...(s.settings||{})};
+  return s;
+}
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw) return normalize(JSON.parse(raw)); }catch(e){ console.warn(e); }
+  return fresh();
+}
+let state = load();
+let storageOk = true;
+function persist(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); storageOk = true; }
+  catch(e){ storageOk = false; console.warn(e); }
+}
+
+/* ---------- Date ---------- */
+const pad = n => String(n).padStart(2,"0");
+const toKey = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fromKey = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y,m-1,d,12); };
+const today = () => { const n = new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate(),12); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const diff = (a,b) => Math.round((b-a)/864e5);
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
+const fmtLong = d => d.toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+const fmtShort = d => d.toLocaleDateString("it-IT",{day:"numeric",month:"short"});
+const fmtDay = d => d.toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+const giorni = n => n===1 ? "1 giorno" : `${n} giorni`;
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- Motore del ciclo ---------- */
+function summary(){
+  const s = state.settings;
+  const days = Object.keys(state.logs).filter(k => (state.logs[k].flow||0) >= 2).sort();
+  const periods = [];
+  for(const k of days){
+    const d = fromKey(k), last = periods[periods.length-1];
+    if(last && diff(last.end,d) <= 2) last.end = d; else periods.push({start:d,end:d});
+  }
+  periods.forEach((p,i) => {
+    p.length = diff(p.start,p.end)+1;
+    p.cycle = periods[i+1] ? diff(p.start,periods[i+1].start) : null;
+  });
+  const lengths = periods.map(p=>p.cycle).filter(l => l!==null && l>=18 && l<=60);
+  const avg = a => Math.round(a.reduce((x,y)=>x+y,0)/a.length);
+  const recent = lengths.slice(-6);
+  const avgCycle = recent.length ? avg(recent) : s.cycleLength;
+  const t = today();
+  const done = periods.filter(p => diff(p.end,t) >= 2).slice(-6).map(p=>p.length);
+  const avgPeriod = done.length ? avg(done) : s.periodLength;
+  const last = periods[periods.length-1] || null;
+  const nextStart = last ? addDays(last.start, avgCycle) : null;
+  return {periods, lengths, avgCycle, avgPeriod, last, nextStart};
+}
+function periodFor(S,d){ let r=null; for(const p of S.periods){ if(p.start<=d) r=p; else break; } return r; }
+function nextStartAfter(S,p){ const i=S.periods.indexOf(p); return S.periods[i+1] ? S.periods[i+1].start : addDays(p.start,S.avgCycle); }
+function cycleDay(S,d){ const p=periodFor(S,d); return p ? diff(p.start,d)+1 : null; }
+function inPeriod(S,d){
+  const p = periodFor(S,d); if(!p) return false;
+  if(d <= p.end) return true;
+  // ieri era un giorno di ciclo e siamo ancora entro la durata media: probabilmente continua
+  return p===S.last && diff(p.end,d)===1 && diff(p.start,d) < S.avgPeriod;
+}
+function phaseFor(S,d){
+  const p = periodFor(S,d); if(!p) return null;
+  if(inPeriod(S,d)) return "menstrual";
+  const ov = addDays(nextStartAfter(S,p),-14);
+  const k = diff(ov,d);
+  if(k===0) return "ovulation";
+  if(k>=-5 && k<0) return "fertile";
+  return k<0 ? "follicular" : "luteal";
+}
+function predictions(S,cycles=6){
+  const P = {period:new Set(), fertile:new Set(), ovulation:new Set()};
+  if(!S.last) return P;
+  const t = toKey(today());
+  for(let k=0;k<=cycles;k++){
+    const start = addDays(S.last.start, S.avgCycle*k);
+    if(k>0) for(let i=0;i<S.avgPeriod;i++){ const key=toKey(addDays(start,i)); if(key>t) P.period.add(key); }
+    const ov = addDays(start, S.avgCycle-14), ok = toKey(ov);
+    if(ok>t) P.ovulation.add(ok);
+    for(let i=1;i<=5;i++){ const key=toKey(addDays(ov,-i)); if(key>t) P.fertile.add(key); }
+  }
+  return P;
+}
+
+/* ---------- Navigazione ---------- */
+let tab = "oggi";
+let viewMonth = (()=>{ const t=today(); return new Date(t.getFullYear(),t.getMonth(),1,12); })();
+const view = document.getElementById("view");
+document.getElementById("nav").addEventListener("click",e=>{
+  const b = e.target.closest("[data-tab]"); if(!b) return;
+  tab = b.dataset.tab; render();
+});
+function applyTheme(){
+  const th = THEMES[state.settings.theme] || THEMES.rosa;
+  document.documentElement.style.setProperty("--accent",th.color);
+  document.documentElement.style.setProperty("--fertile",th.fertile);
+}
+function render(){
+  applyTheme();
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  ({oggi:renderToday,calendario:renderCalendar,statistiche:renderStats,impostazioni:renderSettings})[tab]();
+}
+
+/* ---------- Ambiente (iPhone / app installata) ---------- */
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isTouch = matchMedia("(pointer:coarse)").matches;
+function installCard(){
+  if(!isIOS || isStandalone || sessionStorage.getItem("luna-hide-install")) return "";
+  return `<div class="card install">
+    <h2>📲 Installa Luna sull'iPhone</h2>
+    <span class="small">Per avere l'icona e non perdere i dati, usa Luna dall'icona sulla schermata Home, non da Safari:</span>
+    <ol class="small">
+      <li>Tocca il pulsante <b>Condividi</b> (il quadrato con la freccia ⬆️)</li>
+      <li>Scegli <b>Aggiungi alla schermata Home</b> e poi <b>Aggiungi</b></li>
+      <li>Da quel momento apri Luna dall'icona 🌙</li>
+    </ol>
+    <p class="muted small">I dati salvati qui in Safari non passano all'app installata: conviene installarla prima di iniziare.</p>
+    <button class="btn" data-act="hide-install">Più tardi</button>
+  </div>`;
+}
+
+/* ---------- Oggi ---------- */
+function ringSvg(progress,caption,value,foot){
+  const r=100, c=2*Math.PI*r, p=Math.max(0,Math.min(1,progress));
+  return `<div class="ring"><svg viewBox="0 0 250 250" aria-hidden="true">
+    <circle cx="125" cy="125" r="${r}" class="ring-bg"/>
+    <circle cx="125" cy="125" r="${r}" class="ring-fg" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 125 125)"/>
+  </svg><div class="ring-text"><div class="muted">${caption}</div><div class="v">${value}</div>${foot?`<div class="muted small">${foot}</div>`:""}</div></div>`;
+}
+function banners(S){
+  const s = state.settings, t = today(), out = [];
+  if(!storageOk) out.push(["⚠️","Il browser non riesce a salvare i dati. Fai un backup da Impostazioni."]);
+  if(S.nextStart && s.periodReminder && !inPeriod(S,t)){
+    const until = diff(t,S.nextStart);
+    if(until>0 && until<=s.reminderDays) out.push(["🌸",`Il ciclo dovrebbe arrivare tra ${giorni(until)}. Tieni a portata di mano assorbenti e una borraccia.`]);
+    else if(until===0) out.push(["🌸","Il ciclo è previsto per oggi. Quando arriva, segnalo qui sotto."]);
+    else if(until<0) out.push(["🕰️",`Il ciclo è in ritardo di ${giorni(-until)}. Piccoli ritardi sono normali (stress, sonno, sport); se capita spesso parlane con il medico.`]);
+  }
+  if(s.medEnabled){
+    const log = state.logs[toKey(t)], now = new Date();
+    const nowMin = now.getHours()*60+now.getMinutes(), [h,m] = s.medTime.split(":").map(Number);
+    if(!(log&&log.med) && nowMin >= h*60+m) out.push(["💊",`Ricordati: ${esc(s.medName)}. <button class="btn small" data-act="med-done">Fatto</button>`]);
+  }
+  return out.map(([i,txt])=>`<div class="banner"><span>${i}</span><span>${txt}</span></div>`).join("");
+}
+function renderToday(){
+  const S = summary(), s = state.settings, t = today(), tk = toKey(t), log = state.logs[tk];
+  let ring;
+  const day = cycleDay(S,t);
+  if(!S.last || day===null){
+    ring = ringSvg(0,"Benvenuta","🌸","Segna il primo giorno dell'ultimo ciclo per iniziare");
+  } else {
+    const prog = day/S.avgCycle, until = diff(t,S.nextStart);
+    if(inPeriod(S,t)) ring = ringSvg(prog,"Mestruazioni",`Giorno ${diff(S.last.start,t)+1}`,`Giorno ${day} del ciclo`);
+    else if(until>0) ring = ringSvg(prog,"Ciclo tra",giorni(until),`Giorno ${day} del ciclo`);
+    else if(until===0) ring = ringSvg(1,"Ciclo previsto","Oggi",`Giorno ${day} del ciclo`);
+    else ring = ringSvg(1,"In ritardo di",giorni(-until),`Giorno ${day} del ciclo`);
+  }
+  let ph = phaseFor(S,t);
+  if(!s.showFertile && (ph==="fertile"||ph==="ovulation")) ph = "follicular";
+  const phaseHtml = ph ? `<div class="phase"><b>${PHASES[ph].i} ${PHASES[ph].t}</b><span class="small">${PHASES[ph].d}</span></div>` : "";
+
+  const items = log ? state.items.filter(it=>log.items.includes(it.key)) : [];
+  const todayEntry = log ? `
+    <div class="stack">
+      ${log.flow ? `<div><span class="chip">${FLOWS[log.flow].sym} Flusso ${FLOWS[log.flow].label.toLowerCase()}</span></div>`:""}
+      ${items.length ? `<div class="chips">${items.map(it=>`<span class="chip">${esc(it.emoji)} ${esc(it.name)}</span>`).join("")}</div>`:""}
+      ${log.med ? `<div><span class="chip">💊 ${esc(s.medName)} preso</span></div>`:""}
+      ${log.note ? `<div class="muted">“${esc(log.note)}”</div>`:""}
+    </div>` : `<p class="muted" style="margin:0">Non hai ancora registrato niente per oggi.</p>`;
+
+  const P = predictions(S);
+  const nextFert = [...P.fertile, ...P.ovulation].sort()[0];
+  const upcoming = S.nextStart ? `
+    <div class="stack small">
+      <div>🩸 Prossimo ciclo previsto: <b>${fmtDay(S.nextStart)}</b></div>
+      ${!s.showFertile ? "" : (ph==="fertile"||ph==="ovulation")
+          ? `<div>✨ Finestra fertile in corso${[...P.ovulation].sort()[0] && ph==="fertile" ? ` · ovulazione stimata <b>${fmtShort(fromKey([...P.ovulation].sort()[0]))}</b>`:""}</div>`
+          : nextFert ? `<div>✨ Prossima finestra fertile: <b>${fmtShort(fromKey(nextFert))}</b></div>` : ""}
+      <div class="muted">Ciclo medio ${S.avgCycle} giorni · mestruazioni ${S.avgPeriod} giorni</div>
+    </div>` : `<p class="muted small" style="margin:0">Le previsioni compaiono dopo il primo ciclo registrato.</p>`;
+
+  view.innerHTML = `
+    <p class="hello">Ciao${s.name?" "+esc(s.name):""} 👋</p>
+    <p class="muted" style="margin:2px 0 18px">${cap(fmtLong(t))}</p>
+    ${installCard()}
+    ${banners(S)}
+    <div class="grid2">
+      <div class="card">${ring}${phaseHtml}</div>
+      <div>
+        <div class="card stack">
+          ${log && log.flow>=2 ? "" : `<button class="btn primary block" data-act="start">🩸 Segna mestruazioni oggi</button>`}
+          <button class="btn block" data-act="edit-today">${log?"✏️ Modifica oggi":"📝 Registra come stai oggi"}</button>
+        </div>
+        <div class="card"><h2>Oggi</h2>${todayEntry}</div>
+        <div class="card"><h2>In arrivo</h2>${upcoming}</div>
+      </div>
+    </div>
+    <p class="muted small">Le previsioni sono stime basate sui cicli registrati: non sono una diagnosi né un metodo contraccettivo.</p>`;
+}
+view.addEventListener("click",e=>{
+  const a = e.target.closest("[data-act]"); if(!a) return;
+  const tk = toKey(today());
+  if(a.dataset.act==="start"){
+    const l = state.logs[tk] || {flow:0,items:[],note:"",med:false};
+    l.flow = Math.max(l.flow,3); state.logs[tk] = l; persist(); render();
+  } else if(a.dataset.act==="edit-today") openDay(tk);
+  else if(a.dataset.act==="hide-install"){ sessionStorage.setItem("luna-hide-install","1"); render(); }
+  else if(a.dataset.act==="med-done"){
+    const l = state.logs[tk] || {flow:0,items:[],note:"",med:false};
+    l.med = true; state.logs[tk] = l; persist(); render();
+  }
+});
+
+/* ---------- Registrazione del giorno ---------- */
+const dlg = document.getElementById("dlg");
+let draft = null;
+function openDay(key){
+  const log = state.logs[key];
+  draft = {key, flow:log?.flow||0, items:new Set(log?.items||[]), exists:!!log};
+  const s = state.settings;
+  dlg.innerHTML = `<form method="dialog" class="day">
+    <header><h2>${fmtLong(fromKey(key))}</h2><button value="cancel" class="iconbtn" aria-label="Chiudi">✕</button></header>
+    <h3>Flusso</h3>
+    <div class="flows">${FLOWS.map((f,i)=>`<button type="button" class="flow ${draft.flow===i?"on":""}" data-flow="${i}"><span>${f.sym}</span><small>${f.label}</small></button>`).join("")}</div>
+    ${KINDS.map(k=>{
+      const list = state.items.filter(it=>it.kind===k.id);
+      return list.length ? `<h3>${k.title}</h3><div class="chips">${list.map(it=>`<button type="button" class="chip ${draft.items.has(it.key)?"on":""}" data-item="${it.key}">${esc(it.emoji)} ${esc(it.name)}</button>`).join("")}</div>` : "";
+    }).join("")}
+    ${s.medEnabled ? `<h3>${esc(s.medName)}</h3><label class="check"><input type="checkbox" id="d-med" ${log?.med?"checked":""}> Preso</label>`:""}
+    <h3>Note</h3>
+    <textarea id="d-note" rows="3" placeholder="Come ti senti oggi?">${esc(log?.note||"")}</textarea>
+    <footer>
+      ${draft.exists?`<button type="button" class="btn danger" id="d-del">🗑 Cancella</button>`:""}
+      <span class="sp"></span>
+      <button value="cancel" class="btn">Annulla</button>
+      <button type="button" class="btn primary" id="d-save">Salva</button>
+    </footer></form>`;
+  dlg.showModal();
+}
+dlg.addEventListener("click",e=>{
+  if(e.target===dlg){ dlg.close(); return; }
+  const f = e.target.closest("[data-flow]");
+  if(f){ draft.flow=+f.dataset.flow; dlg.querySelectorAll("[data-flow]").forEach(b=>b.classList.toggle("on",+b.dataset.flow===draft.flow)); return; }
+  const it = e.target.closest("[data-item]");
+  if(it){ const k=it.dataset.item; draft.items.has(k)?draft.items.delete(k):draft.items.add(k); it.classList.toggle("on"); return; }
+  if(e.target.id==="d-save"){
+    const note = dlg.querySelector("#d-note").value.trim();
+    const med = !!dlg.querySelector("#d-med")?.checked;
+    const old = state.logs[draft.key];
+    // se il farmaco non è attivo conserva il valore precedente
+    const medVal = state.settings.medEnabled ? med : !!old?.med;
+    const entry = {flow:draft.flow, items:[...draft.items], note, med:medVal};
+    if(!entry.flow && !entry.items.length && !entry.note && !entry.med) delete state.logs[draft.key];
+    else state.logs[draft.key] = entry;
+    persist(); dlg.close(); render();
+  }
+  if(e.target.id==="d-del"){ delete state.logs[draft.key]; persist(); dlg.close(); render(); }
+});
+
+/* ---------- Calendario ---------- */
+function markFor(S,P,key,t){
+  const log = state.logs[key], d = fromKey(key), sf = state.settings.showFertile;
+  if(log && log.flow>=2) return "period";
+  if(log && log.flow===1) return "spot";
+  if(key > t){
+    if(P.period.has(key)) return "pred";
+    if(sf && P.ovulation.has(key)) return "ovu";
+    if(sf && P.fertile.has(key)) return "fert";
+    return "";
+  }
+  if(sf){ const ph = phaseFor(S,d); if(ph==="ovulation") return "ovu"; if(ph==="fertile") return "fert"; }
+  return "";
+}
+function renderCalendar(){
+  const S = summary(), P = predictions(S), t = toKey(today());
+  const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+  const daysIn = new Date(y,m+1,0).getDate();
+  const offset = (new Date(y,m,1).getDay()+6)%7; // lunedì primo
+  let cells = `${["L","M","M","G","V","S","D"].map(w=>`<div class="wd">${w}</div>`).join("")}`;
+  for(let i=0;i<offset;i++) cells += `<div></div>`;
+  for(let d=1; d<=daysIn; d++){
+    const key = `${y}-${pad(m+1)}-${pad(d)}`, log = state.logs[key];
+    const has = log && (log.items.length || log.note || log.med);
+    const cls = ["cell", markFor(S,P,key,t), key===t?"today":"", has?"has":""].filter(Boolean).join(" ");
+    cells += `<button class="${cls}" data-day="${key}" ${key>t?"disabled":""} title="${esc(fmtLong(fromKey(key)))}">${d}</button>`;
+  }
+  const sf = state.settings.showFertile;
+  view.innerHTML = `<div class="card">
+    <div class="cal-head">
+      <button class="iconbtn" data-mon="-1" aria-label="Mese precedente">‹</button>
+      <h2>${cap(viewMonth.toLocaleDateString("it-IT",{month:"long",year:"numeric"}))}</h2>
+      <button class="iconbtn" data-mon="1" aria-label="Mese successivo">›</button>
+    </div>
+    <div class="cal">${cells}</div>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>Mestruazioni</span>
+      <span><i style="box-shadow:inset 0 0 0 2px var(--accent)"></i>Previste</span>
+      ${sf?`<span><i style="background:color-mix(in srgb,var(--fertile) 25%,transparent)"></i>Finestra fertile</span>
+      <span><i style="box-shadow:inset 0 0 0 2px var(--fertile)"></i>Ovulazione</span>`:""}
+      <span>• Note o sintomi</span>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn" data-mon="0">Torna a oggi</button>
+    </div>
+    <p class="muted small" style="text-align:center">${isTouch?"Tocca un giorno per registrarlo. Scorri a destra o a sinistra per cambiare mese.":"Clicca su un giorno per registrarlo. Usa ← → sulla tastiera per cambiare mese."}</p>
+  </div>`;
+}
+view.addEventListener("click",e=>{
+  if(tab!=="calendario") return;
+  const mon = e.target.closest("[data-mon]");
+  if(mon){ shiftMonth(+mon.dataset.mon); return; }
+  const day = e.target.closest("[data-day]");
+  if(day && !day.disabled) openDay(day.dataset.day);
+});
+function shiftMonth(n){
+  if(n===0){ const t=today(); viewMonth=new Date(t.getFullYear(),t.getMonth(),1,12); }
+  else viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth()+n, 1, 12);
+  render();
+}
+let touchX = null, touchY = null;
+view.addEventListener("touchstart",e=>{
+  if(tab!=="calendario" || !e.target.closest(".cal")) { touchX=null; return; }
+  touchX = e.touches[0].clientX; touchY = e.touches[0].clientY;
+},{passive:true});
+view.addEventListener("touchend",e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX-touchX, dy = e.changedTouches[0].clientY-touchY;
+  touchX = null;
+  if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5) shiftMonth(dx<0?1:-1);
+},{passive:true});
+document.addEventListener("keydown",e=>{
+  if(tab!=="calendario" || dlg.open || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(e.key==="ArrowLeft") shiftMonth(-1);
+  if(e.key==="ArrowRight") shiftMonth(1);
+});
+
+/* ---------- Statistiche ---------- */
+function barChart(values,avgVal){
+  if(!values.length) return `<p class="muted">Servono almeno due cicli registrati per vedere il grafico.</p>`;
+  const W=560,H=200,pl=8,pb=24,pt=20, n=values.length, gap=10;
+  const bw = Math.min(46,(W-pl*2-gap*(n-1))/n);
+  const max = Math.max(...values,avgVal)+4, min = Math.max(0,Math.min(...values,avgVal)-8);
+  const yOf = v => pt + (H-pb-pt)*(1-(v-min)/(max-min));
+  const totalW = n*bw+(n-1)*gap, x0 = (W-totalW)/2;
+  let g = "";
+  values.forEach((v,i)=>{
+    const x = x0+i*(bw+gap), y = yOf(v);
+    g += `<rect x="${x}" y="${y}" width="${bw}" height="${H-pb-y}" rx="6" fill="var(--accent)" opacity=".85"/>
+          <text x="${x+bw/2}" y="${y-5}" text-anchor="middle" class="bar-val">${v}</text>
+          <text x="${x+bw/2}" y="${H-6}" text-anchor="middle" class="bar-label">${i+1}</text>`;
+  });
+  const ya = yOf(avgVal);
+  g += `<line x1="${pl}" x2="${W-pl}" y1="${ya}" y2="${ya}" stroke="var(--text)" stroke-dasharray="4 4" opacity=".45"/>
+        <text x="${W-pl}" y="${ya-5}" text-anchor="end" class="bar-label">media ${avgVal}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Durata dei cicli">${g}</svg>`;
+}
+function renderStats(){
+  const S = summary(), cutoff = toKey(addDays(today(),-90));
+  const counts = {};
+  for(const [k,l] of Object.entries(state.logs)) if(k>=cutoff) for(const it of l.items) counts[it]=(counts[it]||0)+1;
+  const top = state.items.filter(it=>counts[it.key]).sort((a,b)=>counts[b.key]-counts[a.key]).slice(0,10);
+  const maxC = top.length ? counts[top[0].key] : 1;
+  const hist = [...S.periods].reverse().slice(0,12);
+  view.innerHTML = `
+    <div class="card"><div class="tiles">
+      <div class="tile"><b>${S.avgCycle}</b><span class="small muted">giorni di ciclo medio</span></div>
+      <div class="tile"><b>${S.avgPeriod}</b><span class="small muted">giorni di mestruazioni</span></div>
+      <div class="tile"><b>${S.periods.length}</b><span class="small muted">cicli registrati</span></div>
+    </div>
+    ${S.lengths.length<2?`<p class="muted small" style="margin-bottom:0">Finché non ci sono almeno due cicli completi l'app usa i valori impostati in Impostazioni.</p>`:""}</div>
+    <div class="card"><h2>Durata degli ultimi cicli</h2>${barChart(S.lengths.slice(-12),S.avgCycle)}</div>
+    <div class="grid2">
+      <div class="card"><h2>Storico</h2>
+        ${hist.length?`<table><tr><th>Inizio</th><th>Mestruazioni</th><th>Ciclo</th></tr>
+        ${hist.map(p=>`<tr><td>${fmtShort(p.start)} ${p.start.getFullYear()}</td><td>${giorni(p.length)}</td><td>${p.cycle?giorni(p.cycle):'<span class="muted">in corso</span>'}</td></tr>`).join("")}</table>`
+        :`<p class="muted">Nessun ciclo registrato.</p>`}
+      </div>
+      <div class="card"><h2>Più frequenti (ultimi 90 giorni)</h2>
+        ${top.length?`<div class="stack">${top.map(it=>`<div>
+          <div class="row small"><span>${esc(it.emoji)} ${esc(it.name)}</span><span class="sp"></span><b>${counts[it.key]}</b></div>
+          <div style="height:6px;border-radius:3px;background:var(--soft)"><div style="height:6px;border-radius:3px;background:var(--accent);width:${counts[it.key]/maxC*100}%"></div></div>
+        </div>`).join("")}</div>`:`<p class="muted">Ancora niente: registra umore e sintomi nei vari giorni.</p>`}
+      </div>
+    </div>`;
+}
+
+/* ---------- Impostazioni ---------- */
+function renderSettings(){
+  const s = state.settings;
+  const itemRows = kind => {
+    const list = state.items.filter(it=>it.kind===kind);
+    return list.map((it,i)=>`<div class="item-row">
+      <input type="text" class="emo" value="${esc(it.emoji)}" data-ikey="${it.key}" data-ifield="emoji" aria-label="Emoji">
+      <input type="text" value="${esc(it.name)}" data-ikey="${it.key}" data-ifield="name" aria-label="Nome">
+      <button class="mini" data-imove="-1" data-ikey="${it.key}" ${i===0?"disabled":""} title="Su">↑</button>
+      <button class="mini" data-imove="1" data-ikey="${it.key}" ${i===list.length-1?"disabled":""} title="Giù">↓</button>
+      <button class="mini" data-idel="${it.key}" title="Elimina">✕</button>
+    </div>`).join("") || `<p class="muted small">Nessuna voce.</p>`;
+  };
+  view.innerHTML = `
+  <div class="grid2">
+    <div>
+      <div class="card stack"><h2>Profilo e aspetto</h2>
+        <label class="field">Nome<input type="text" data-set="name" value="${esc(s.name)}" placeholder="Come ti chiami?"></label>
+        <div class="field" style="font-weight:600">Colore</div>
+        <div class="swatches">${Object.entries(THEMES).map(([k,t])=>`<button class="swatch ${s.theme===k?"on":""}" style="background:${t.color}" data-theme="${k}" title="${t.name}" aria-label="${t.name}">${s.theme===k?"✓":""}</button>`).join("")}</div>
+      </div>
+      <div class="card stack"><h2>Ciclo</h2>
+        <div class="row">
+          <label class="field" style="flex:1">Durata del ciclo (giorni)<input type="number" min="20" max="45" data-set="cycleLength" data-num value="${s.cycleLength}"></label>
+          <label class="field" style="flex:1">Durata mestruazioni<input type="number" min="2" max="10" data-set="periodLength" data-num value="${s.periodLength}"></label>
+        </div>
+        <p class="muted small" style="margin:0">Valori di partenza: dopo due cicli registrati l'app calcola da sola le medie.</p>
+        <label class="check"><input type="checkbox" data-set="showFertile" ${s.showFertile?"checked":""}> Mostra finestra fertile e ovulazione</label>
+      </div>
+      <div class="card stack"><h2>Promemoria</h2>
+        <label class="check"><input type="checkbox" data-set="periodReminder" ${s.periodReminder?"checked":""}> Avvisami prima del ciclo</label>
+        <label class="field">Quanti giorni prima<input type="number" min="1" max="7" data-set="reminderDays" data-num value="${s.reminderDays}"></label>
+        <hr style="border:0;border-top:1px solid var(--line);width:100%">
+        <label class="check"><input type="checkbox" data-set="medEnabled" ${s.medEnabled?"checked":""}> Farmaco o integratore giornaliero</label>
+        <div class="row">
+          <label class="field" style="flex:2">Nome<input type="text" data-set="medName" value="${esc(s.medName)}"></label>
+          <label class="field" style="flex:1">Ora<input type="time" data-set="medTime" value="${esc(s.medTime)}"></label>
+        </div>
+        <p class="muted small" style="margin:0">Gli avvisi compaiono quando apri Luna. Per riceverli anche ad app chiusa, esporta le date nel Calendario: su iPhone scegli <b>Salva su File</b>, poi apri il file dall'app File e tocca <b>Aggiungi tutti</b>.</p>
+        <div class="row">
+          <button class="btn" data-sact="ics">📅 Esporta nel calendario (.ics)</button>
+          ${("Notification" in window) && (!isIOS || isStandalone) ? `<button class="btn" data-sact="notif">🔔 Notifiche</button>` : ""}
+        </div>
+        <span class="muted small" id="notif-msg"></span>
+      </div>
+    </div>
+    <div>
+      <div class="card stack"><h2>Sintomi e umori</h2>
+        ${KINDS.map(k=>`<div class="stack"><b class="small">${k.title}</b><div class="items-list">${itemRows(k.id)}</div></div>`).join("")}
+        <form class="item-row" id="add-item" style="grid-template-columns:52px 1fr auto auto">
+          <input type="text" class="emo" name="emoji" placeholder="🙂" aria-label="Emoji">
+          <input type="text" name="name" placeholder="Nuova voce" aria-label="Nuova voce" required>
+          <select name="kind" style="border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px">${KINDS.map(k=>`<option value="${k.id}" ${k.id==="symptom"?"selected":""}>${k.title}</option>`).join("")}</select>
+          <button class="btn primary">+</button>
+        </form>
+      </div>
+      <div class="card stack"><h2>Privacy</h2>
+        <p class="small" style="margin:0">Tutti i dati restano su questo dispositivo: nessun account, nessun server, nessuna pubblicità. Il sito da cui si installa Luna contiene solo il programma, mai i tuoi dati.</p>
+        <label class="check"><input type="checkbox" data-set="discreet" ${s.discreet?"checked":""}> Testi discreti negli avvisi e nel calendario</label>
+        ${s.pinHash
+          ? `<div class="row"><span class="small">🔒 PIN attivo</span><span class="sp"></span><button class="btn" data-sact="lock">Blocca ora</button><button class="btn danger" data-sact="pin-off">Rimuovi PIN</button></div>`
+          : `<form class="row" id="pin-form"><input type="password" inputmode="numeric" name="pin" placeholder="Nuovo PIN (almeno 4 cifre)" style="flex:1" autocomplete="new-password"><button class="btn">Imposta PIN</button></form>`}
+        <p class="muted small" style="margin:0">Il PIN tiene lontani gli occhi curiosi, ma non cifra i dati.</p>
+      </div>
+      <div class="card stack"><h2>Backup</h2>
+        <p class="muted small" style="margin:0">Se elimini l'app, cancelli i dati di Safari o cambi telefono, il diario si perde: esporta un backup ogni tanto (su iPhone: Salva su File o iCloud Drive).</p>
+        <div class="row">
+          <button class="btn" data-sact="export">⬇️ Esporta backup</button>
+          <label class="btn">⬆️ Importa backup<input type="file" accept=".json,application/json" id="import" hidden></label>
+        </div>
+        <button class="btn danger" data-sact="wipe">Cancella tutti i dati</button>
+      </div>
+    </div>
+  </div>
+  <p class="muted small">Luna non sostituisce il parere del medico. Le previsioni sono stime.</p>`;
+}
+view.addEventListener("input",e=>{
+  const el = e.target;
+  if(el.dataset.set){
+    const k = el.dataset.set;
+    if(el.type==="checkbox") state.settings[k] = el.checked;
+    else if("num" in el.dataset){
+      const v = parseInt(el.value,10);
+      if(isNaN(v)) return;
+      state.settings[k] = Math.min(+el.max, Math.max(+el.min, v));
+    } else state.settings[k] = el.value;
+    if(k==="medName" && !el.value.trim()) state.settings[k] = "Integratore";
+    persist();
+  }
+  if(el.dataset.ikey && el.dataset.ifield){
+    const it = state.items.find(i=>i.key===el.dataset.ikey);
+    if(it){ it[el.dataset.ifield] = el.value; persist(); }
+  }
+});
+view.addEventListener("change",e=>{
+  if(e.target.id==="import"){ importBackup(e.target.files[0]); return; }
+  if(e.target.dataset.num!==undefined) render(); // riallinea il valore limitato
+});
+view.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(e.target.id==="add-item"){
+    const f = new FormData(e.target), name = String(f.get("name")).trim();
+    if(!name) return;
+    state.items.push({key:uid(), emoji:String(f.get("emoji")).trim()||"•", name, kind:f.get("kind")});
+    persist(); render();
+  }
+  if(e.target.id==="pin-form"){
+    const pin = String(new FormData(e.target).get("pin")).trim();
+    if(!/^\d{4,8}$/.test(pin)){ alert("Il PIN deve avere da 4 a 8 cifre."); return; }
+    state.settings.pinHash = await hashPin(pin); persist(); render();
+  }
+});
+view.addEventListener("click",e=>{
+  if(tab!=="impostazioni") return;
+  const th = e.target.closest("[data-theme]");
+  if(th){ state.settings.theme = th.dataset.theme; persist(); render(); return; }
+  const mv = e.target.closest("[data-imove]");
+  if(mv){
+    const it = state.items.find(i=>i.key===mv.dataset.ikey);
+    const same = state.items.filter(i=>i.kind===it.kind), pos = same.indexOf(it), other = same[pos + +mv.dataset.imove];
+    if(other){ const a=state.items.indexOf(it), b=state.items.indexOf(other); [state.items[a],state.items[b]]=[state.items[b],state.items[a]]; persist(); render(); }
+    return;
+  }
+  const del = e.target.closest("[data-idel]");
+  if(del){
+    const it = state.items.find(i=>i.key===del.dataset.idel);
+    if(it && confirm(`Eliminare “${it.name}” dall'elenco? I giorni già registrati non verranno modificati.`)){
+      state.items = state.items.filter(i=>i!==it); persist(); render();
+    }
+    return;
+  }
+  const act = e.target.closest("[data-sact]")?.dataset.sact;
+  if(act==="ics") exportICS();
+  if(act==="notif") askNotifications();
+  if(act==="export") exportBackup();
+  if(act==="lock") lockNow();
+  if(act==="pin-off" && confirm("Rimuovere il PIN?")){ state.settings.pinHash=""; persist(); render(); }
+  if(act==="wipe" && confirm("Cancellare tutte le registrazioni? Conviene esportare prima un backup.") && confirm("Sicura? L'operazione non si può annullare.")){
+    state.logs = {}; persist(); render();
+  }
+});
+
+/* ---------- Backup e calendario ---------- */
+async function download(name,text,type){
+  // Su iPhone si usa il menu Condividi (Salva su File, Mail, AirDrop…)
+  if(isTouch && navigator.canShare){
+    try{
+      const file = new File([text], name, {type});
+      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:name}); return; }
+    }catch(e){ if(e && e.name==="AbortError") return; }
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text],{type}));
+  a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+}
+function exportBackup(){
+  download(`luna-backup-${toKey(today())}.json`, JSON.stringify(state,null,1), "application/json");
+}
+function importBackup(file){
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const data = normalize(JSON.parse(r.result));
+      if(!confirm(`Il backup contiene ${Object.keys(data.logs).length} giorni registrati. Sostituire i dati attuali?`)) return;
+      state = data; persist(); render();
+    }catch(err){ alert("Questo file non sembra un backup di Luna."); }
+  };
+  r.readAsText(file);
+}
+function exportICS(){
+  const S = summary(), s = state.settings;
+  if(!S.last){ alert("Registra almeno un ciclo per poter calcolare le date."); return; }
+  const ymd = d => toKey(d).replace(/-/g,"");
+  const stamp = new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+  const title = s.discreet ? "🌸 Promemoria" : "🌸 Ciclo previsto";
+  const L = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Luna//Diario//IT","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
+  let n = 0;
+  for(let k=1; k<=8 && n<6; k++){
+    const start = addDays(S.last.start, S.avgCycle*k);
+    if(start < today()) continue;
+    n++;
+    L.push("BEGIN:VEVENT",`UID:luna-${ymd(start)}@luna.local`,`DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${ymd(start)}`,`DTEND;VALUE=DATE:${ymd(addDays(start,1))}`,
+      `SUMMARY:${title}`,"TRANSP:TRANSPARENT");
+    if(s.periodReminder) L.push("BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${title}`,`TRIGGER:-PT${s.reminderDays*24-9}H`,"END:VALARM");
+    L.push("BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${title}`,"TRIGGER:PT9H","END:VALARM","END:VEVENT");
+  }
+  L.push("END:VCALENDAR");
+  download("luna-promemoria.ics", L.join("\r\n"), "text/calendar");
+}
+
+/* ---------- Notifiche ---------- */
+async function askNotifications(){
+  const msg = document.getElementById("notif-msg");
+  if(!("Notification" in window)){ msg.textContent = "Questo browser non supporta le notifiche."; return; }
+  try{
+    const p = await Notification.requestPermission();
+    msg.textContent = p==="granted" ? "Notifiche attive: arrivano quando Luna è aperta. Per gli avvisi ad app chiusa usa l'esportazione nel Calendario." :
+      "Il browser non le ha concesse: per i file aperti dal disco spesso succede. Usa l'esportazione nel calendario.";
+  }catch(e){ msg.textContent = "Il browser non permette le notifiche per questa pagina."; }
+}
+async function notify(title,body){
+  if(!("Notification" in window) || Notification.permission!=="granted") return;
+  try{
+    const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+    if(reg){ await reg.showNotification(title,{body, icon:"icon-192.png", tag:title}); return; }
+    new Notification(title,{body});
+  }catch(e){}
+}
+function checkReminders(){
+  const s = state.settings, t = today(), tk = toKey(t), S = summary();
+  if(s.periodReminder && S.nextStart && s.lastNotified!==tk && !inPeriod(S,t)){
+    const until = diff(t,S.nextStart);
+    if(until>=0 && until<=s.reminderDays){
+      notify(s.discreet?"Luna 🌸":"Ciclo in arrivo 🌸", s.discreet?"Dai un'occhiata al tuo diario.":(until===0?"Il ciclo è previsto per oggi.":`Il ciclo dovrebbe arrivare tra ${giorni(until)}.`));
+      s.lastNotified = tk; persist();
+    }
+  }
+  if(s.medEnabled && s.lastMedNotified!==tk){
+    const now = new Date(), [h,m] = s.medTime.split(":").map(Number), log = state.logs[tk];
+    if(now.getHours()*60+now.getMinutes() >= h*60+m && !(log&&log.med)){
+      notify(s.discreet?"Luna":"💊 "+s.medName, s.discreet?"È ora del tuo promemoria.":`Ricordati: ${s.medName}.`);
+      s.lastMedNotified = tk; persist();
+      if(tab==="oggi" && !dlg.open) render();
+    }
+  }
+}
+
+/* ---------- PIN ---------- */
+async function hashPin(pin){
+  const data = new TextEncoder().encode("luna:"+pin);
+  if(window.crypto && crypto.subtle){
+    const buf = await crypto.subtle.digest("SHA-256",data);
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+  let h = 5381; for(const b of data) h = ((h<<5)+h+b)>>>0; return "d"+h.toString(16);
+}
+const lockEl = document.getElementById("lock");
+function lockNow(){
+  if(!state.settings.pinHash) return;
+  if(dlg.open) dlg.close();
+  lockEl.classList.add("show");
+  document.getElementById("lock-err").textContent = "";
+  const inp = document.getElementById("lock-pin"); inp.value = ""; setTimeout(()=>inp.focus(),50);
+}
+document.getElementById("lock-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const inp = document.getElementById("lock-pin");
+  if(await hashPin(inp.value.trim()) === state.settings.pinHash){ lockEl.classList.remove("show"); render(); }
+  else { document.getElementById("lock-err").textContent = "PIN errato"; inp.value = ""; }
+});
+let hiddenAt = 0;
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden) hiddenAt = Date.now();
+  else if(state.settings.pinHash && hiddenAt && Date.now()-hiddenAt > 2*60*1000) lockNow();
+});
+
+/* ---------- Avvio ---------- */
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("sw.js").catch(e=>console.warn("SW",e));
+}
+// chiede al sistema di non cancellare i dati per mancanza di spazio
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+persist();
+render();
+lockNow();
+checkReminders();
+setInterval(checkReminders, 60*1000);
+</script>
+</body>
+</html>

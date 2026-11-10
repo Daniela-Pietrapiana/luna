@@ -1,0 +1,44 @@
+LUNA - Diario del ciclo per iPhone
+==================================
+
+Contenuto della cartella:
+  index.html            l'app
+  manifest.webmanifest  nome e icona per la schermata Home
+  sw.js                 permette all'app di aprirsi anche senza internet
+  icon-*.png            icone
+
+L'iPhone permette di aggiungere un'app web alla schermata Home solo se
+viene aperta da un indirizzo https. Il modo gratuito più semplice è
+GitHub Pages. Il sito contiene SOLO il programma: i dati del diario
+restano sempre e solo sul telefono.
+
+1) PUBBLICARE SU GITHUB PAGES (una volta sola, dal PC)
+   - Crea un account gratuito su https://github.com (se non ne hai uno tuo)
+   - In alto a destra: "+"  ->  "New repository"
+     Nome: luna   (va bene anche Public: dentro c'è solo il codice)
+     Spunta "Add a README file"  ->  "Create repository"
+   - "Add file" -> "Upload files": trascina TUTTI i file di questa cartella
+     (non la cartella, i file) -> "Commit changes"
+   - "Settings" -> "Pages" -> Source: "Deploy from a branch",
+     Branch: "main", cartella "/ (root)" -> "Save"
+   - Dopo 1-2 minuti l'indirizzo sarà:
+        https://TUONOME.github.io/luna/
+
+2) INSTALLARE SULL'IPHONE DI TUA FIGLIA
+   - Apri l'indirizzo con SAFARI (non Chrome)
+   - Tocca Condividi (quadrato con la freccia) -> "Aggiungi alla schermata Home"
+     -> "Aggiungi"
+   - Da qui in poi va aperta SEMPRE dall'icona Luna: l'app installata ha
+     un suo archivio, separato da quello di Safari.
+
+3) DA SAPERE
+   - Funziona anche offline dopo la prima apertura.
+   - Promemoria: compaiono quando si apre Luna. Per avere avvisi ad app
+     chiusa: Impostazioni -> "Esporta nel calendario (.ics)" -> "Salva su File",
+     poi apri il file dall'app File e tocca "Aggiungi tutti".
+     Rifallo ogni qualche mese (esporta i prossimi 6 cicli).
+   - Backup: Impostazioni -> "Esporta backup" -> "Salva su File" (o iCloud Drive).
+     Lo stesso file si può importare anche nella versione per PC, e viceversa.
+   - Se elimini l'icona dalla Home, i dati vengono cancellati: fai prima un backup.
+   - Per aggiornare l'app basta caricare il nuovo index.html su GitHub:
+     al successivo avvio con internet si aggiorna da sola, i dati restano.
